@@ -1,6 +1,8 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.NetCode;
+using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(ServerSimulationSystemGroup))]//make sure this only runs on the server
@@ -18,21 +20,23 @@ public class GoInGameServerSystem : SystemBase
                 ref ReceiveRpcCommandRequestComponent reqSrc
                 ) =>
             {
-                //we add a network connection to the component on our side
-                entityManager.AddComponent<NetworkStreamInGame>(reqSrc.SourceConnection);
-                UnityEngine.Debug.Log(System.String.Format("Server setting connection {0} to in game", 
-                    EntityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value));
+            //we add a network connection to the component on our side
+            entityManager.AddComponent<NetworkStreamInGame>(reqSrc.SourceConnection);
+            UnityEngine.Debug.Log(System.String.Format("Server setting connection {0} to in game",
+                EntityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value));
 
+            int ConnectNum = EntityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value;
 
                 // var ghostCollection = GetSingleton<GhostPrefabCollectionComponent>();
 
-                EntityQuery query = GetEntityQuery(typeof(GhostPrefabCollectionComponent));
+        EntityQuery query = GetEntityQuery(typeof(GhostPrefabCollectionComponent));
                 NativeArray<GhostPrefabCollectionComponent> GhostPrefabs = query.ToComponentDataArray<GhostPrefabCollectionComponent>(Allocator.Temp);
                 var ghostCollection = GhostPrefabs[0];
 
                 var ghostId = MultiplayerPongGhostSerializerCollection.FindGhostType<PaddleTheSideSnapshotData>(); // TheSide
 
                 var prefab = EntityManager.GetBuffer<GhostPrefabBuffer>(ghostCollection.serverPrefabs)[ghostId].Value;
+
 
                 // spawn in our player 
                 var player = entityManager.Instantiate(prefab);
@@ -43,7 +47,31 @@ public class GoInGameServerSystem : SystemBase
                         PlayerId = entityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value
                     });
 
+                //entityManager.AddComponent<GhostConnectionPosition>(player);
+                //entityManager.SetComponentData(player, new GhostConnectionPosition
+                //{
+                //    Position = new float3(-10f + 10f * ConnectNum, 0f, 0f)
+                //});
 
+                // entityManager.HasComponent<Transform>(player).position = new float3(-10f + 10f * ConnectNum, 0f, 0f);
+                //var test = entityManager.GetComponentData<LocalToWorld>(player); // 这个组件是只读的，我们需要使用Translation 来控制对象的初始位置
+                //var testComponent= entityManager.GetComponentTypes(player);
+                //var test1= entityManager.GetComponentData<Translation>(player);
+
+                entityManager.SetComponentData(player, new Translation
+                {
+                    Value = new float3(-15f + (5f * ConnectNum), 0f, 0f)
+                });
+
+
+
+                /*
+                                entityManager.SetComponentData(player, new GhostConnectionPosition // 这个需要在客户端添加
+                                {
+                                    Position = new float3(-10f+10f*ConnectNum, 0f, 0f)
+                                });
+
+                */
 
                 //var ghostCollection = GetSingleton<GhostPrefabCollectionComponent>();
                 ////if you get errors in this code make sure you have generated the ghost collection and ghost code using their authoring components and that the names are set correctly when you do so.

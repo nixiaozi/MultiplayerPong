@@ -2,6 +2,7 @@
 
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Networking.Transport;
 
@@ -59,6 +60,14 @@ public class GoInGameClientSystem : SystemBase
             entityManager.AddComponent<SendRpcCommandRequestComponent>(req);
             //add the entity with the network components as our target.
             entityManager.SetComponentData(req, new SendRpcCommandRequestComponent { TargetConnection = ent });
+
+            // 为每个生成的玩家对象指定自定义位置==> 这个只是进行距离重要性计算的。
+            entityManager.AddComponent<GhostConnectionPosition>(req);
+            entityManager.SetComponentData(req, new GhostConnectionPosition
+            {
+                Position = new float3(-10f + 10f * id.Value, 0f, 0f)
+            });
+
 
             // Camera add directly test 
             /*            Camera camera = new Camera();   // 出现为空的错误    
