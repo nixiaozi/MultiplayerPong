@@ -171,6 +171,9 @@ MonoBehaviour:
   Ghosts:
   - prefab: {fileID: 52457221188196216, guid: 3426abec93112bf4aa486d9a9c44c2ec, type: 3}
     enabled: 1
+  - prefab: {fileID: 6586145607690557661, guid: 23c4eca5a4f516d4bbb10c5b948986fd,
+      type: 3}
+    enabled: 1
 --- !u!1 &405986856
 GameObject:
   m_ObjectHideFlags: 0

@@ -25,15 +25,22 @@ public class GoInGameServerSystem : SystemBase
             UnityEngine.Debug.Log(System.String.Format("Server setting connection {0} to in game",
                 EntityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value));
 
-            int ConnectNum = EntityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value;
+            int ConnectNum = EntityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value; // ConnectNum 从1开始
 
                 // var ghostCollection = GetSingleton<GhostPrefabCollectionComponent>();
 
-        EntityQuery query = GetEntityQuery(typeof(GhostPrefabCollectionComponent));
+                EntityQuery query = GetEntityQuery(typeof(GhostPrefabCollectionComponent));
                 NativeArray<GhostPrefabCollectionComponent> GhostPrefabs = query.ToComponentDataArray<GhostPrefabCollectionComponent>(Allocator.Temp);
-                var ghostCollection = GhostPrefabs[0];
+                var ghostCollection = GhostPrefabs[0]; // 三行代码等效于 var ghostCollection = GetSingleton<GhostPrefabCollectionComponent>();
 
-                var ghostId = MultiplayerPongGhostSerializerCollection.FindGhostType<PaddleTheSideSnapshotData>(); // TheSide
+                // var ghostId = MultiplayerPongGhostSerializerCollection.FindGhostType<PaddleTheSideSnapshotData>(); // 这个只会返回0和-1；或者是返回ghost在ghostCollection 中的编号
+                var ghostId = 0;
+
+                if (ConnectNum <=2)
+                {
+                    ghostId = ConnectNum - 1;
+                }
+
 
                 var prefab = EntityManager.GetBuffer<GhostPrefabBuffer>(ghostCollection.serverPrefabs)[ghostId].Value;
 
@@ -44,7 +51,7 @@ public class GoInGameServerSystem : SystemBase
                 entityManager.SetComponentData(player,
                     new PaddleMoveableComponent
                     {
-                        PlayerId = entityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value
+                        PlayerId = ConnectNum
                     });
 
                 //entityManager.AddComponent<GhostConnectionPosition>(player);
