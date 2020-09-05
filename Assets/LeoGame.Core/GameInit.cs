@@ -15,7 +15,7 @@ public class GameInit : SystemBase
 
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<InitGameComponent>();
+        RequireSingletonForUpdate<InitGameComponent>(); // 定义了 Update 需要有 InitGameComponent 这个组件才能运行
         // Create singleton, require singleton for update so system runs once
         EntityManager.CreateEntity(typeof(InitGameComponent));
     }
@@ -23,7 +23,7 @@ public class GameInit : SystemBase
     protected override void OnUpdate()
     {
         // Destroy singleton to prevent system from running again
-        EntityManager.DestroyEntity(GetSingletonEntity<InitGameComponent>());
+        EntityManager.DestroyEntity(GetSingletonEntity<InitGameComponent>()); // OnCreate 定义了需要有 InitGameComponent 这个组件才能运行，这里删除后就不会再运行
         foreach (var world in World.All)
         {
             var network = world.GetExistingSystem<NetworkStreamReceiveSystem>();

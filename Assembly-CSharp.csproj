@@ -68,6 +68,8 @@
     <Compile Include="Assets\LeoGame.Core\GameInit.cs" />
     <Compile Include="Assets\LeoGame.Core\ServerClientInit.cs" />
     <Compile Include="Assets\LeoGame.Core\ServerInGameInit.cs" />
+    <Compile Include="Assets\LeoGame.GameStatus\GameStatusHoldSystem.cs" />
+    <Compile Include="Assets\LeoGame.GameStatus\LeoGameStatus.cs" />
     <Compile Include="Assets\LeoGame.GhostCollection\GhostDeserializerCollection.cs" />
     <Compile Include="Assets\LeoGame.GhostCollection\GhostSerializerCollection.cs" />
     <Compile Include="Assets\LeoGame.Player\PaddleOtherSideGen\PaddleOtherSideGhostSerializer.cs" />

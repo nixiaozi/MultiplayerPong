@@ -20,6 +20,8 @@ public class GoInGameServerSystem : SystemBase
                 ref ReceiveRpcCommandRequestComponent reqSrc
                 ) =>
             {
+                Debug.Log("GoInGameRequest Version:"+req.Version); // 获取当前连接的客户端版本号
+
             //we add a network connection to the component on our side
             entityManager.AddComponent<NetworkStreamInGame>(reqSrc.SourceConnection);
             UnityEngine.Debug.Log(System.String.Format("Server setting connection {0} to in game",
