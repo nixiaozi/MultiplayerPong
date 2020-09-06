@@ -12,7 +12,7 @@ using Unity.Networking.Transport;
 /// </summary>
 
 [BurstCompile]
-public struct GoInGameRequest : IRpcCommand
+public struct GoInGameRequest : IRpcCommand // 这是服务端与客户端共用的代码，所有序列化和反序列化虽然在不同机器上执行，但是一定要有
 {
     public NativeString64 Version;
     public int TestInt;
@@ -97,5 +97,7 @@ public class GoInGameClientSystem : SystemBase
 
 
         }).Run();
+
+
     }
 }

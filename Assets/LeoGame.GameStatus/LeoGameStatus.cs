@@ -1,15 +1,81 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
+using Unity.NetCode;
+using Unity.Networking.Transport;
 
-public struct LeoGameStatus : IComponentData
+
+[BurstCompile]
+public struct LeoGameStatus : IRpcCommand
 {
-    public TheGameStatus TheGameStatus;
+    public TheGameStatus theGameStatus;
 
+    public void Deserialize(ref DataStreamReader reader)
+    {
+        theGameStatus = (TheGameStatus)reader.ReadInt();
+    }
+
+    public void Serialize(ref DataStreamWriter writer)
+    {
+        writer.WriteInt((int)theGameStatus);
+    }
+    [BurstCompile]
+    private static void InvokeExecute(ref RpcExecutor.Parameters parameters)
+    {
+        RpcExecutor.ExecuteCreateRequestComponent<LeoGameStatus>(ref parameters); 
+    }
+
+    static PortableFunctionPointer<RpcExecutor.ExecuteDelegate> InvokeExecuteFunctionPointer =
+        new PortableFunctionPointer<RpcExecutor.ExecuteDelegate>(InvokeExecute);
+
+    public PortableFunctionPointer<RpcExecutor.ExecuteDelegate> CompileExecute()
+    {
+        return InvokeExecuteFunctionPointer;
+    }
 }
 
-public struct LeoPlayerGameStatus : ISharedComponentData
+public class LeoGameStatusRequestSystem : RpcCommandRequestSystem<LeoGameStatus>
+{
+}
+
+
+// ArgumentException: Component LeoPlayerGameStatus can only implement one of IComponentData, ISharedComponentData and IBufferElementData
+[BurstCompile]
+public struct LeoPlayerGameStatus : IRpcCommand // ISharedComponentData, IRpcCommand // 这里限定为共享组件可能会有问题 确实有问题
 {
     public PlayerGameStatus playerGameStatus;
+    public int playerId;
+
+    public void Deserialize(ref DataStreamReader reader)
+    {
+        playerGameStatus = (PlayerGameStatus)reader.ReadInt();
+        playerId = reader.ReadInt();
+    }
+
+    public void Serialize(ref DataStreamWriter writer)
+    {
+        writer.WriteInt((int)playerGameStatus);
+        writer.WriteInt(playerId);
+    }
+    [BurstCompile]
+    private static void InvokeExecute(ref RpcExecutor.Parameters parameters)
+    {
+        RpcExecutor.ExecuteCreateRequestComponent<LeoPlayerGameStatus>(ref parameters);
+    }
+
+    static PortableFunctionPointer<RpcExecutor.ExecuteDelegate> InvokeExecuteFunctionPointer =
+        new PortableFunctionPointer<RpcExecutor.ExecuteDelegate>(InvokeExecute);
+
+    public PortableFunctionPointer<RpcExecutor.ExecuteDelegate> CompileExecute()
+    {
+        return InvokeExecuteFunctionPointer;
+    }
+
 }
+
+public class LeoPlayerGameStatusRequestSystem : RpcCommandRequestSystem<LeoPlayerGameStatus>
+{
+}
+
 
 
 /* // 注意ECS数据存储的特性以及它的优点进行判断如何编码
@@ -184,3 +250,11 @@ public enum PlayerGameStatus
     /// </summary>
     Break,
 }
+
+
+//public struct ThePlayerGameStatus : ISharedComponentData
+//{
+//    public PlayerGameStatus playerGameStatusNum;
+
+//    // public int PlayId;
+//}
