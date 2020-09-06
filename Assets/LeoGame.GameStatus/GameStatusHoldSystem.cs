@@ -1,4 +1,5 @@
 ﻿
+using Unity.Collections;
 using Unity.Entities;
 using Unity.NetCode;
 using UnityEngine;
@@ -9,7 +10,7 @@ using UnityEngine;
 public class ClientGameStatusHoldSystem : SystemBase
 {
     public EntityCommandBufferSystem CommandBufferSystem;
-
+    private Entity ThePlayerGameStatus;
 
     protected override void OnCreate()
     {
@@ -17,10 +18,10 @@ public class ClientGameStatusHoldSystem : SystemBase
 
 
         //CommandBufferSystem.EntityManager.CreateEntity(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus));
-        EntityManager.CreateEntity(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus)); // 创建一个全局可访问的实体
+        ThePlayerGameStatus = EntityManager.CreateEntity(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus)); // 创建一个全局可访问的实体
 
 
-        SetSingleton<LeoGameStatus>(new LeoGameStatus { theGameStatus = TheGameStatus.Break }); // 直接修改单例实体组件的值
+        SetSingleton<LeoGameStatus>(new LeoGameStatus { theGameStatus = TheGameStatus.NoReady }); // 直接修改单例实体组件的值
 
 
 
@@ -33,15 +34,17 @@ public class ClientGameStatusHoldSystem : SystemBase
         EntityCommandBuffer.Concurrent commandBuffer
             = CommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
-
+        // 只能使用 NativeArray<T> 的方式传递值给 Burst 编译器执行
+        NativeArray<Entity> getThePlayerGameStatus =new NativeArray<Entity>(new Entity[] { ThePlayerGameStatus },Allocator.TempJob) ;
 
         // 发送Rpc请求
         var handle1 = Entities
+            //.WithDeallocateOnJobCompletion(getThePlayerGameStatus) // 
             .ForEach((Entity entity, int entityInQueryIndex, ref NetworkIdComponent id) =>
         {
 
             Debug.Log("发送给服务端 LeoPlayerGameStatus 消息！");
-            Entity newEntity = commandBuffer.CreateEntity(entityInQueryIndex);
+            Entity newEntity = commandBuffer.Instantiate(entityInQueryIndex, getThePlayerGameStatus[0]);
 
             commandBuffer.AddComponent<LeoPlayerGameStatus>(entityInQueryIndex,newEntity);
 
@@ -83,6 +86,7 @@ public class ClientGameStatusHoldSystem : SystemBase
 
         handle2.Complete();
 
+        Dependency = getThePlayerGameStatus.Dispose(handle2); // Dispose getThePlayerGameStatus
     }
 
 }
