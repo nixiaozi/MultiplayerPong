@@ -42,6 +42,8 @@ public class GameInit : SystemBase
                 NetworkEndPoint ep = NetworkEndPoint.AnyIpv4;
                 ep.Port = 7979;
                 network.Listen(ep);
+
+                
             }
         }
     }

@@ -72,6 +72,16 @@ public class GoInGameServerSystem : SystemBase
                     Value = new float3(-15f + (5f * ConnectNum), 0f, 0f)
                 });
 
+                // 添加初始化的玩家游戏状态实体
+                var playerStatus = entityManager.CreateEntity(typeof(LeoPlayerGameStatus));
+
+                entityManager.SetComponentData(playerStatus,
+                    new LeoPlayerGameStatus
+                    {
+                        playerGameStatus = PlayerGameStatus.NotReady,
+                        playerId = ConnectNum,
+                    });
+
 
 
                 /*

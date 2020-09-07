@@ -12,6 +12,11 @@ public class CustomeStarup : ClientServerBootstrap
         World.DefaultGameObjectInjectionWorld = world;
 
         DefaultWorldInitialization.AddSystemsToRootLevelSystemGroups(world, ExplicitDefaultWorldSystems);
+
+        // 添加自定义的SystemGroup
+
+        
+
         ScriptBehaviourUpdateOrder.UpdatePlayerLoop(world);
         return true;
     }

@@ -15,7 +15,8 @@ public class ServerClientInit : MonoBehaviour
     {
         Debug.Log("To Awake!");
 #if UNITY_CLIENT
-        ClientServerBootstrap.CreateClientWorld(World.DefaultGameObjectInjectionWorld, "MyClientWorld");
+        var clientWorld =ClientServerBootstrap.CreateClientWorld(World.DefaultGameObjectInjectionWorld, "MyClientWorld");
+        // clientWorld.EntityManager.CreateEntity(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus)); // 创建一个全局可访问的实体
 #endif
 
 #if UNITY_SERVER
@@ -24,7 +25,8 @@ public class ServerClientInit : MonoBehaviour
 #endif
 
 #if UNITY_EDITOR
-        ClientServerBootstrap.CreateServerWorld(World.DefaultGameObjectInjectionWorld, "MyServerWorld");
+
+        var theServerWorld = ClientServerBootstrap.CreateServerWorld(World.DefaultGameObjectInjectionWorld, "MyServerWorld");
 
         //需要生成对应数量的 client
         int numClientWorlds = ClientServerBootstrap.RequestedNumClients; // 客户端
@@ -35,13 +37,15 @@ public class ServerClientInit : MonoBehaviour
 
         for (int i = 0; i < numClientWorlds; ++i)
         {
-            ClientServerBootstrap.CreateClientWorld(World.DefaultGameObjectInjectionWorld, "MyClientWorld" + i);
+            var clientWorld = ClientServerBootstrap.CreateClientWorld(World.DefaultGameObjectInjectionWorld, "MyClientWorld" + i);
+            // clientWorld.EntityManager.CreateEntity(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus)); // 创建一个全局可访问的实体
         }
 
         for (int i = numClientWorlds; i < totalNumClients; ++i)
         {
             var clientWorld = ClientServerBootstrap.CreateClientWorld(World.DefaultGameObjectInjectionWorld, "MyClientWorld" + i);
             clientWorld.EntityManager.CreateEntity(typeof(ThinClientComponent));
+            // clientWorld.EntityManager.CreateEntity(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus)); // 创建一个全局可访问的实体
         }
 #endif
 

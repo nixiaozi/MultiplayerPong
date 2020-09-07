@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\LeoGame.Core\ClientInGameInit.cs" />
+    <Compile Include="Assets\LeoGame.Core\CustomSystemGroupCollection.cs" />
     <Compile Include="Assets\LeoGame.Core\CustomeStarup.cs" />
     <Compile Include="Assets\LeoGame.Core\GameInit.cs" />
     <Compile Include="Assets\LeoGame.Core\ServerClientInit.cs" />

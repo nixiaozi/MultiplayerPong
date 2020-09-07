@@ -6,6 +6,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Networking.Transport;
+using UnityEngine;
 
 /// <summary>
 /// 客户端发送请求为了连接到服务端加入游戏
@@ -58,34 +59,47 @@ public class GoInGameRequestSystem : RpcCommandRequestSystem<GoInGameRequest>
 [UpdateInGroup(typeof(ClientSimulationSystemGroup))]
 public class GoInGameClientSystem : SystemBase
 {
+    public EntityCommandBufferSystem CommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireSingletonForUpdate<NetworkIdComponent>();
+    }
+
     protected override void OnUpdate()
     {
+        //int playerId = 0; // 直接使用这个好像是不行的。
+        // NativeArray<int> arrayPlayerId = new NativeArray<int>(new int[] { 0 }, Allocator.TempJob);
         EntityManager entityManager = EntityManager;
+        EntityCommandBuffer commandBuffer
+            = CommandBufferSystem.CreateCommandBuffer();
         //we addd the with structural changes so that we can add components and the with none to make sure we don't send the request if we already have a connection to the server
         // WithStructuralChanges()：在主线程以关闭Burst的方式运行，这时候可以做一些structural changes的操作。建议使用EntityCommandBuffer来代替这种用法。
-        Entities.WithStructuralChanges().WithNone<NetworkStreamInGame>().ForEach((Entity ent, ref NetworkIdComponent id) =>
+        Entities.WithoutBurst()//.WithStructuralChanges()
+            .WithNone<NetworkStreamInGame>().ForEach((Entity ent, ref NetworkIdComponent id) =>
         {
             //we add a network stream in game component so that this code is only run once
-            entityManager.AddComponent<NetworkStreamInGame>(ent);
+            commandBuffer.AddComponent<NetworkStreamInGame>(ent);
             // RPC 请求完成之后会自动删除。。。
             //create an entity to hold our request, requests are automatically sent when they are detected on an entity making it really simple to send them.
-            var req = entityManager.CreateEntity();
+            var req = commandBuffer.CreateEntity();
             //add our go in game request
-            entityManager.AddComponent<GoInGameRequest>(req);
+            commandBuffer.AddComponent<GoInGameRequest>(req);
             //add the rpc request component, this is what tells the sending system to send it
-            entityManager.AddComponent<SendRpcCommandRequestComponent>(req);
+            commandBuffer.AddComponent<SendRpcCommandRequestComponent>(req);
             //add the entity with the network components as our target.
-            entityManager.SetComponentData(req, new SendRpcCommandRequestComponent { TargetConnection = ent });
+            commandBuffer.SetComponent<SendRpcCommandRequestComponent>(req, new SendRpcCommandRequestComponent { TargetConnection = ent });
 
             // 为每个生成的玩家对象指定自定义位置==> 这个只是进行距离重要性计算的。
-            entityManager.AddComponent<GhostConnectionPosition>(req);
-            entityManager.SetComponentData(req, new GhostConnectionPosition
+            commandBuffer.AddComponent<GhostConnectionPosition>(req);
+            commandBuffer.SetComponent(req, new GhostConnectionPosition
             {
                 Position = new float3(-10f + 10f * id.Value, 0f, 0f)
             });
 
 
-            EntityManager.SetComponentData(req, new GoInGameRequest { TestInt = 90,Version="preview-0.0.1" }); // 添加自定义的 Version
+            commandBuffer.SetComponent(req, new GoInGameRequest { TestInt = 90, Version = "preview-0.0.1" }); // 添加自定义的 Version
 
             // 带有 SendRpcCommandRequestComponent 和 GoInGameRequest 的组件会被 RpcCommandRequestSystem<TActionRequest> 执行
             // 创建的实体命令应该在操作完成后会被删除
@@ -94,10 +108,39 @@ public class GoInGameClientSystem : SystemBase
             /*            Camera camera = new Camera();   // 出现为空的错误    
                         camera.enabled = true;
                         GameManager.Instantiate<Camera>(camera);*/
+            // arrayPlayerId[0] = id.Value;
+            var playerStatus = GetSingletonEntity<PlayerIdNotInit>();
+            commandBuffer.SetComponent<LeoPlayerGameStatus>(playerStatus, new LeoPlayerGameStatus
+            {
+                playerGameStatus = PlayerGameStatus.NotReady,
+                playerId = id.Value
+            });
+            commandBuffer.RemoveComponent<PlayerIdNotInit>(playerStatus);
 
 
         }).Run();
 
+        #region 修改这段代码通过直接在前面就修改玩家状态的值就好了
+        /*
+                handle1.Complete();
+                //获取并保存玩家ID
+                var handle2 = Entities
+                    .ForEach((Entity entity,ref LeoGameStatus gameStatus,in PlayerIdNotInit player, in LeoPlayerGameStatus playerStatus) =>
+                    {
+                        LeoPlayerGameStatus editCom = new LeoPlayerGameStatus
+                        {
+                            playerGameStatus = playerStatus.playerGameStatus,
+                            playerId = arrayPlayerId[0]
+                        };
+                        commandBuffer.SetComponent<LeoPlayerGameStatus>(entity, editCom); // 修改真实值
+                        commandBuffer.RemoveComponent<PlayerIdNotInit>(entity); // 删除控制标识
+                    }).Schedule(handle1);
 
+                handle2.Complete();
+                Dependency = arrayPlayerId.Dispose(handle2);
+
+
+                Debug.Log("Execute to That=>ClientInGameInit3");*/
+        #endregion
     }
 }
