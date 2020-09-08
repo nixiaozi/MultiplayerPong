@@ -13,11 +13,12 @@ public struct MultiplayerPongGhostDeserializerCollection : IGhostDeserializerCol
         {
             "PaddleTheSideGhostSerializer",
             "PaddleOtherSideGhostSerializer",
+            "SphereGhostSerializer",
         };
         return arr;
     }
 
-    public int Length => 2;
+    public int Length => 3;
 #endif
     public void Initialize(World world)
     {
@@ -29,12 +30,17 @@ public struct MultiplayerPongGhostDeserializerCollection : IGhostDeserializerCol
         m_PaddleOtherSideSnapshotDataNewGhostIds = curPaddleOtherSideGhostSpawnSystem.NewGhostIds;
         m_PaddleOtherSideSnapshotDataNewGhosts = curPaddleOtherSideGhostSpawnSystem.NewGhosts;
         curPaddleOtherSideGhostSpawnSystem.GhostType = 1;
+        var curSphereGhostSpawnSystem = world.GetOrCreateSystem<SphereGhostSpawnSystem>();
+        m_SphereSnapshotDataNewGhostIds = curSphereGhostSpawnSystem.NewGhostIds;
+        m_SphereSnapshotDataNewGhosts = curSphereGhostSpawnSystem.NewGhosts;
+        curSphereGhostSpawnSystem.GhostType = 2;
     }
 
     public void BeginDeserialize(JobComponentSystem system)
     {
         m_PaddleTheSideSnapshotDataFromEntity = system.GetBufferFromEntity<PaddleTheSideSnapshotData>();
         m_PaddleOtherSideSnapshotDataFromEntity = system.GetBufferFromEntity<PaddleOtherSideSnapshotData>();
+        m_SphereSnapshotDataFromEntity = system.GetBufferFromEntity<SphereSnapshotData>();
     }
     public bool Deserialize(int serializer, Entity entity, uint snapshot, uint baseline, uint baseline2, uint baseline3,
         ref DataStreamReader reader, NetworkCompressionModel compressionModel)
@@ -46,6 +52,9 @@ public struct MultiplayerPongGhostDeserializerCollection : IGhostDeserializerCol
                 baseline3, ref reader, compressionModel);
             case 1:
                 return GhostReceiveSystem<MultiplayerPongGhostDeserializerCollection>.InvokeDeserialize(m_PaddleOtherSideSnapshotDataFromEntity, entity, snapshot, baseline, baseline2,
+                baseline3, ref reader, compressionModel);
+            case 2:
+                return GhostReceiveSystem<MultiplayerPongGhostDeserializerCollection>.InvokeDeserialize(m_SphereSnapshotDataFromEntity, entity, snapshot, baseline, baseline2,
                 baseline3, ref reader, compressionModel);
             default:
                 throw new ArgumentException("Invalid serializer type");
@@ -64,6 +73,10 @@ public struct MultiplayerPongGhostDeserializerCollection : IGhostDeserializerCol
                 m_PaddleOtherSideSnapshotDataNewGhostIds.Add(ghostId);
                 m_PaddleOtherSideSnapshotDataNewGhosts.Add(GhostReceiveSystem<MultiplayerPongGhostDeserializerCollection>.InvokeSpawn<PaddleOtherSideSnapshotData>(snapshot, ref reader, compressionModel));
                 break;
+            case 2:
+                m_SphereSnapshotDataNewGhostIds.Add(ghostId);
+                m_SphereSnapshotDataNewGhosts.Add(GhostReceiveSystem<MultiplayerPongGhostDeserializerCollection>.InvokeSpawn<SphereSnapshotData>(snapshot, ref reader, compressionModel));
+                break;
             default:
                 throw new ArgumentException("Invalid serializer type");
         }
@@ -75,6 +88,9 @@ public struct MultiplayerPongGhostDeserializerCollection : IGhostDeserializerCol
     private BufferFromEntity<PaddleOtherSideSnapshotData> m_PaddleOtherSideSnapshotDataFromEntity;
     private NativeList<int> m_PaddleOtherSideSnapshotDataNewGhostIds;
     private NativeList<PaddleOtherSideSnapshotData> m_PaddleOtherSideSnapshotDataNewGhosts;
+    private BufferFromEntity<SphereSnapshotData> m_SphereSnapshotDataFromEntity;
+    private NativeList<int> m_SphereSnapshotDataNewGhostIds;
+    private NativeList<SphereSnapshotData> m_SphereSnapshotDataNewGhosts;
 }
 public struct EnableMultiplayerPongGhostReceiveSystemComponent : IComponentData
 {}

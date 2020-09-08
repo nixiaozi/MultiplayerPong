@@ -66,12 +66,12 @@ public class GoInGameServerSystem : SystemBase
                 //var test = entityManager.GetComponentData<LocalToWorld>(player); // 这个组件是只读的，我们需要使用Translation 来控制对象的初始位置
                 //var testComponent= entityManager.GetComponentTypes(player);
                 //var test1= entityManager.GetComponentData<Translation>(player);
-
+/*              // 实际并不需要重新定义玩家实体位置
                 entityManager.SetComponentData(player, new Translation
                 {
                     Value = new float3(-15f + (5f * ConnectNum), 0f, 0f)
                 });
-
+*/
                 // 添加初始化的玩家游戏状态实体
                 var playerStatus = entityManager.CreateEntity(typeof(LeoPlayerGameStatus));
 
