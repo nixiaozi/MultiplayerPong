@@ -17,15 +17,16 @@ public struct PlayerIdNotInit : IComponentData { public int value; } // 标识�
 public class ClientGameStatusSendSystem : SystemBase
 {
     public EntityCommandBufferSystem CommandBufferSystem;
-    private NativeArray<LeoPlayerGameStatus> ThePlayerGameStatus;
+    // private NativeArray<LeoPlayerGameStatus> ThePlayerGameStatus;
+    private EntityQuery ThePlayerGameStatus;
 
     protected override void OnCreate()
     {
         CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityManager.CreateEntity(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus),typeof(PlayerIdNotInit)); // 创建一个全局可访问的实体
         // ThePlayerGameStatus = GetSingletonEntity<LeoGameStatus>();
-        ThePlayerGameStatus = GetEntityQuery(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus))
-                                    .ToComponentDataArray<LeoPlayerGameStatus>(Allocator.TempJob); 
+        ThePlayerGameStatus = GetEntityQuery(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus));
+                                    //.ToComponentDataArray<LeoPlayerGameStatus>(Allocator.TempJob); // 这里产生 NativeArray 被释放一次后就不会再有了
 
         RequireSingletonForUpdate<ClientGameStatusSendSystemController>(); // 添加控制
         RequireSingletonForUpdate<NetworkIdComponent>();
@@ -49,7 +50,7 @@ public class ClientGameStatusSendSystem : SystemBase
             = CommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
         // NativeArray<Entity> getThePlayerGameStatus = new NativeArray<Entity>(new Entity[] { ThePlayerGameStatus }, Allocator.TempJob); // 这是一个值引用
-        NativeArray<LeoPlayerGameStatus> getThePlayerGameStatus = ThePlayerGameStatus;
+        NativeArray<LeoPlayerGameStatus> getThePlayerGameStatus = ThePlayerGameStatus.ToComponentDataArray<LeoPlayerGameStatus>(Allocator.TempJob);
         // 发送Rpc请求
         var handle1 = Entities
             //.WithDeallocateOnJobCompletion(getThePlayerGameStatus) // 
@@ -148,6 +149,10 @@ public class ClientGameStatusReceiveSystem : SystemBase
                 {
                     Debug.Log("获得了从服务端返回的 LeoGameStatus 消息！");
                     commandBuffer.SetComponent<LeoGameStatus>(entityInQueryIndex, reqEnt, entitiesComponentReceive[entitiesComponentReceive.Length-1]); //获取最后的组件值
+                    
+                    
+                
+                
                 }).ScheduleParallel(this.Dependency);
 
 
