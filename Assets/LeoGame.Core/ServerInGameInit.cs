@@ -105,6 +105,11 @@ public class GoInGameServerSystem : SystemBase
 
                 //entityManager.SetComponentData(reqSrc.SourceConnection, new CommandTargetComponent { targetEntity = player });
 
+                // 添加实体组件用于接收客户端输入的操作
+                entityManager.AddBuffer<PaddleInput>(player);
+                entityManager.SetComponentData(reqSrc.SourceConnection, new CommandTargetComponent { targetEntity = player });
+
+
                 entityManager.DestroyEntity(reqEnt);
                 //Debug.Log("Spawned Player");
             }).Run();
