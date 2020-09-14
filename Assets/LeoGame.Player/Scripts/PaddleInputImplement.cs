@@ -1,6 +1,7 @@
 ﻿
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Networking.Transport;
 using Unity.Transforms;
@@ -148,14 +149,20 @@ public class MovePaddleSystem : SystemBase
             inputBuffer.GetDataAtTick(tick, out input);
             //trans.Value.x += deltaTime * theSpeed[0] * (1 / input.horizontal);
             //trans.Value.y += deltaTime * theSpeed[0] * (1 / input.horizontal);
+
             if (input.horizontal > 0)
-                trans.Value.x += deltaTime*2f;
+                trans.Value.x += deltaTime * 2f;
             if (input.horizontal < 0)
                 trans.Value.x -= deltaTime * 2f;
             if (input.vertical > 0)
                 trans.Value.y += deltaTime * 2f;
             if (input.vertical < 0)
                 trans.Value.y -= deltaTime * 2f;
+
+            /*  
+            float3 playerInput = new float3(input.horizontal, input.vertical, 0f); // 这个版本的也不行
+            trans.Value += playerInput * 2f;
+            */
             //if(input.horizontal!=0f)
             //    trans.Value.x += deltaTime * 0.001f * (input.horizontal);
             //if(input.vertical!=0f)
