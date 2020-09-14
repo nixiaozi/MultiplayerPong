@@ -55,7 +55,8 @@ public class PaddleReceiveCommandSystem : CommandReceiveSystem<PaddleInput>
 [UpdateInGroup(typeof(ClientSimulationSystemGroup))]
 public class PaddlePlayerInput : SystemBase
 {
-    private FixedJoystick joystick;
+    // private FixedJoystick joystick;
+    private FloatingJoystick joystick;
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<NetworkIdComponent>(); // 创建一个组件对象准备传输数据
@@ -65,13 +66,18 @@ public class PaddlePlayerInput : SystemBase
         var gameobject = Resources.Load<Canvas>("Canvas");
         gameobject = GameObject.Instantiate<Canvas>(gameobject);
 
-        joystick = Resources.Load<FixedJoystick>("Fixed Joystick");
-        joystick = GameObject.Instantiate<FixedJoystick>(joystick);
+        //joystick = Resources.Load<FixedJoystick>("Fixed Joystick");
+        //joystick = Resources.Load<FixedJoystick>("Fixed Joystick");
+        //joystick = GameObject.Instantiate<FixedJoystick>(joystick);
+        //joystick.transform.SetParent(gameobject.transform);
+
+        joystick = Resources.Load<FloatingJoystick>("Floating Joystick");
+        joystick = GameObject.Instantiate<FloatingJoystick>(joystick);
         joystick.transform.SetParent(gameobject.transform);
 
     }
 
-    
+
 
     protected override void OnUpdate()
     {
@@ -152,23 +158,27 @@ public class MovePaddleSystem : SystemBase
             inputBuffer.GetDataAtTick(tick, out input);
             //trans.Value.x += deltaTime * theSpeed[0] * (1 / input.horizontal);
             //trans.Value.y += deltaTime * theSpeed[0] * (1 / input.horizontal);
-
-            if (trans.Value.x > 0) // 在右边，
+            if (input.horizontal != 0f)
             {
-                trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
-                if (trans.Value.x > 8.5f)
-                    trans.Value.x = 8.5f;
-                if (trans.Value.x < 0.3f)
-                    trans.Value.x = 0.3f;
-            }
+                if (trans.Value.x > 0) // 在右边，
+                {
+                    //trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
+                    trans.Value.x+= input.horizontal * deltaTime * 0.000000005f;
+                    if (trans.Value.x > 8.5f)
+                        trans.Value.x = 8.5f;
+                    if (trans.Value.x < 0.3f)
+                        trans.Value.x = 0.3f;
+                }
 
-            if (trans.Value.x < 0) // 在左边
-            {
-                trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
-                if (trans.Value.x > -0.3f)
-                    trans.Value.x = -0.3f;
-                if (trans.Value.x < -8.5f)
-                    trans.Value.x = -8.5f;
+                if (trans.Value.x < 0) // 在左边
+                {
+                    //trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
+                    trans.Value.x += input.horizontal * deltaTime * 0.000000005f;
+                    if (trans.Value.x > -0.3f)
+                        trans.Value.x = -0.3f;
+                    if (trans.Value.x < -8.5f)
+                        trans.Value.x = -8.5f;
+                }
             }
 
 
@@ -178,10 +188,12 @@ public class MovePaddleSystem : SystemBase
             //    trans.Value.x -= deltaTime * 2f;
 
 
-            if (input.vertical > 0)
-                trans.Value.y += deltaTime * 2f;
-            if (input.vertical < 0)
-                trans.Value.y -= deltaTime * 2f;
+            //if (input.vertical > 0)
+            //    trans.Value.y += deltaTime * 2f;
+            //if (input.vertical < 0)
+            //    trans.Value.y -= deltaTime * 2f;
+            if (input.vertical != 0f)
+                trans.Value.y = trans.Value.y + input.vertical*deltaTime*0.000000005f;
 
             // 修正y轴的值
             if (trans.Value.y < -3.2f)
