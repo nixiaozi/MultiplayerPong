@@ -286,13 +286,13 @@ MonoBehaviour:
     m_Friction:
       m_Override: 0
       m_Value:
-        Value: 0.5
-        CombineMode: 0
+        Value: 0
+        CombineMode: 1
     m_Restitution:
       m_Override: 0
       m_Value:
         Value: 0
-        CombineMode: 2
+        CombineMode: 1
     m_BelongsTo:
       m_Override: 0
       m_Value: 0101010101010101010101010101010101010101010101010101010101010101
@@ -320,8 +320,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MotionType: 0
   m_Mass: 1
-  m_LinearDamping: 0.01
-  m_AngularDamping: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0
   m_InitialLinearVelocity:
     x: 0
     y: 0
@@ -340,12 +340,12 @@ MonoBehaviour:
     Value:
       x: 0
       y: 0
-      z: 0
+      z: 1
     RotationOrder: 4
   m_InertiaTensor:
-    x: 0.4
-    y: 0.4
-    z: 0.4
+    x: 0.1
+    y: 0.1
+    z: 0.1
   m_CustomTags:
     Tag00: 0
     Tag01: 0

@@ -6,6 +6,8 @@ using Unity.NetCode;
 using Unity.Networking.Transport;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Physics.Extensions;
+using Unity.Physics;
 
 public struct PaddleInput: ICommandData<PaddleInput>
 {
@@ -140,7 +142,8 @@ public class MovePaddleSystem : SystemBase
         // var theSpeed = new NativeArray<float>(new float[] { moveSpeed }, Allocator.TempJob);
         //var handle1 = 
         Entities
-            .ForEach((DynamicBuffer<PaddleInput> inputBuffer, ref Translation trans, ref PredictedGhostComponent prediction) =>
+            .ForEach((DynamicBuffer<PaddleInput> inputBuffer,ref PhysicsVelocity pv, 
+            ref Translation trans, ref PredictedGhostComponent prediction,ref PhysicsMass mass) =>
         {
             if (!GhostPredictionSystemGroup.ShouldPredict(tick, prediction))
                 return;
@@ -150,23 +153,59 @@ public class MovePaddleSystem : SystemBase
             //trans.Value.x += deltaTime * theSpeed[0] * (1 / input.horizontal);
             //trans.Value.y += deltaTime * theSpeed[0] * (1 / input.horizontal);
 
-            if (input.horizontal > 0)
-                trans.Value.x += deltaTime * 2f;
-            if (input.horizontal < 0)
-                trans.Value.x -= deltaTime * 2f;
+            if (trans.Value.x > 0) // 在右边，
+            {
+                trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
+                if (trans.Value.x > 8.5f)
+                    trans.Value.x = 8.5f;
+                if (trans.Value.x < 0.3f)
+                    trans.Value.x = 0.3f;
+            }
+
+            if (trans.Value.x < 0) // 在左边
+            {
+                trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
+                if (trans.Value.x > -0.3f)
+                    trans.Value.x = -0.3f;
+                if (trans.Value.x < -8.5f)
+                    trans.Value.x = -8.5f;
+            }
+
+
+            //if (input.horizontal > 0)
+            //    trans.Value.x += deltaTime * 2f;
+            //if (input.horizontal < 0)
+            //    trans.Value.x -= deltaTime * 2f;
+
+
             if (input.vertical > 0)
                 trans.Value.y += deltaTime * 2f;
             if (input.vertical < 0)
                 trans.Value.y -= deltaTime * 2f;
 
-            /*  
-            float3 playerInput = new float3(input.horizontal, input.vertical, 0f); // 这个版本的也不行
-            trans.Value += playerInput * 2f;
-            */
-            //if(input.horizontal!=0f)
-            //    trans.Value.x += deltaTime * 0.001f * (input.horizontal);
-            //if(input.vertical!=0f)
-            //    trans.Value.y += deltaTime * 0.001f * (input.vertical);
+            // 修正y轴的值
+            if (trans.Value.y < -3.2f)
+                trans.Value.y = -3.2f;
+
+            if (trans.Value.y > 3.2f)
+                trans.Value.y = 3.2f;
+
+
+
+            /* ComponentExtensions.ApplyImpulse((
+                 )
+                 PhysicsVelocity*/
+
+                // pv.ApplyLinearImpulse(1, new float3(input.horizontal, input.vertical, 0));
+
+                /*  
+                float3 playerInput = new float3(input.horizontal, input.vertical, 0f); // 这个版本的也不行
+                trans.Value += playerInput * 2f;
+                */
+                //if(input.horizontal!=0f)
+                //    trans.Value.x += deltaTime * 0.001f * (input.horizontal);
+                //if(input.vertical!=0f)
+                //    trans.Value.y += deltaTime * 0.001f * (input.vertical);
         }).Run();//.Schedule(Dependency);
 
         //handle1.Complete();
