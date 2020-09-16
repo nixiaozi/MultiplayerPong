@@ -27,7 +27,13 @@ public class GoInGameServerSystem : SystemBase
             UnityEngine.Debug.Log(System.String.Format("Server setting connection {0} to in game",
                 EntityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value));
 
-            int ConnectNum = EntityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value; // ConnectNum 从1开始
+                int ConnectNum = EntityManager.GetComponentData<NetworkIdComponent>(reqSrc.SourceConnection).Value; // ConnectNum 从1开始
+
+                // 处理连接玩家大于2的情况
+                if (ConnectNum>2)
+                {
+                    return;
+                }
 
                 // var ghostCollection = GetSingleton<GhostPrefabCollectionComponent>();
 
