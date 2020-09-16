@@ -77,6 +77,8 @@
     <Compile Include="Assets\LeoGame.Environment\BallGen\SphereGhostSerializer.cs" />
     <Compile Include="Assets\LeoGame.Environment\BallGen\SphereGhostUpdateSystem.cs" />
     <Compile Include="Assets\LeoGame.Environment\BallGen\SphereSnapshotData.cs" />
+    <Compile Include="Assets\LeoGame.Environment\BallImplement.cs" />
+    <Compile Include="Assets\LeoGame.Environment\GameOverImplement.cs" />
     <Compile Include="Assets\LeoGame.GameStatus\GameStatusHoldSystem.cs" />
     <Compile Include="Assets\LeoGame.GameStatus\LeoGameStatus.cs" />
     <Compile Include="Assets\LeoGame.GhostCollection\GhostDeserializerCollection.cs" />

@@ -510,6 +510,11 @@ public class ServerGameStatusSendSystem : SystemBase
                 {
                     leoGameStatusesArray[0] = new LeoGameStatus { theGameStatus = TheGameStatus.AllReady };
                     //commandBuffer.SetComponent<LeoGameStatus>(entity, new LeoGameStatus { theGameStatus = TheGameStatus.AllReady });
+                    // AllReady 会触发球生成
+
+                    /*World.GetOrCreateSystem<BallSpawnerSystem>(); // 这个只能在服务端添加; 出现不能在ForEach中添加动态代码的错误*/
+                    var tEnt = commandBuffer.CreateEntity();
+                    commandBuffer.AddComponent<BallSpawnerSystemController>(tEnt);
                 }
                 else if(leoPlayerGameStatuses.Count(s => s.playerGameStatus == PlayerGameStatus.Playing) == countPlayer)
                 {

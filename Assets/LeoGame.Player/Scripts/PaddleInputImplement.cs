@@ -83,7 +83,7 @@ public class PaddlePlayerInput : SystemBase
     {
         //if(joystick.Horizontal!=0f && joystick.Vertical != 0f)
         //{
-            Debug.Log("Do Joystick!");
+            // Debug.Log("Do Joystick!");
             var localInput = GetSingleton<CommandTargetComponent>().targetEntity;
             var entityManager = EntityManager;
             //if the singleton is not set it means that we need to setup our cube
@@ -163,7 +163,7 @@ public class MovePaddleSystem : SystemBase
                 if (trans.Value.x > 0) // 在右边，
                 {
                     //trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
-                    trans.Value.x+= input.horizontal * deltaTime * 0.000000005f;
+                    trans.Value.x+= input.horizontal * deltaTime * 0.0000000025f;
                     if (trans.Value.x > 8.5f)
                         trans.Value.x = 8.5f;
                     if (trans.Value.x < 0.3f)
@@ -173,7 +173,7 @@ public class MovePaddleSystem : SystemBase
                 if (trans.Value.x < 0) // 在左边
                 {
                     //trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
-                    trans.Value.x += input.horizontal * deltaTime * 0.000000005f;
+                    trans.Value.x += input.horizontal * deltaTime * 0.0000000025f;
                     if (trans.Value.x > -0.3f)
                         trans.Value.x = -0.3f;
                     if (trans.Value.x < -8.5f)
@@ -193,7 +193,7 @@ public class MovePaddleSystem : SystemBase
             //if (input.vertical < 0)
             //    trans.Value.y -= deltaTime * 2f;
             if (input.vertical != 0f)
-                trans.Value.y = trans.Value.y + input.vertical*deltaTime*0.000000005f;
+                trans.Value.y = trans.Value.y + input.vertical*deltaTime* 0.0000000025f;
 
             // 修正y轴的值
             if (trans.Value.y < -3.2f)
