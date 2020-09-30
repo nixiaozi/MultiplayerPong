@@ -148,8 +148,8 @@ public class MovePaddleSystem : SystemBase
         // var theSpeed = new NativeArray<float>(new float[] { moveSpeed }, Allocator.TempJob);
         //var handle1 = 
         Entities
-            .ForEach((DynamicBuffer<PaddleInput> inputBuffer,ref PhysicsVelocity pv, 
-            ref Translation trans, ref PredictedGhostComponent prediction,ref PhysicsMass mass) =>
+            .ForEach((DynamicBuffer<PaddleInput> inputBuffer, 
+            ref Translation trans, ref PredictedGhostComponent prediction,ref PhysicsMass mass, ref PhysicsVelocity velocity, ref Rotation rotation) =>
         {
             if (!GhostPredictionSystemGroup.ShouldPredict(tick, prediction))
                 return;
@@ -163,7 +163,7 @@ public class MovePaddleSystem : SystemBase
                 if (trans.Value.x > 0) // 在右边，
                 {
                     //trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
-                    trans.Value.x+= input.horizontal * deltaTime * 0.0000000025f;
+                    trans.Value.x+= input.horizontal *5* deltaTime * 0.0000000006f;
                     if (trans.Value.x > 8.5f)
                         trans.Value.x = 8.5f;
                     if (trans.Value.x < 0.3f)
@@ -173,7 +173,7 @@ public class MovePaddleSystem : SystemBase
                 if (trans.Value.x < 0) // 在左边
                 {
                     //trans.Value.x = input.horizontal > 0 ? trans.Value.x + deltaTime * 2f : trans.Value.x - deltaTime * 2f;
-                    trans.Value.x += input.horizontal * deltaTime * 0.0000000025f;
+                    trans.Value.x += input.horizontal*5 * deltaTime * 0.0000000006f;
                     if (trans.Value.x > -0.3f)
                         trans.Value.x = -0.3f;
                     if (trans.Value.x < -8.5f)
@@ -193,7 +193,7 @@ public class MovePaddleSystem : SystemBase
             //if (input.vertical < 0)
             //    trans.Value.y -= deltaTime * 2f;
             if (input.vertical != 0f)
-                trans.Value.y = trans.Value.y + input.vertical*deltaTime* 0.0000000025f;
+                trans.Value.y = trans.Value.y + input.vertical*5*deltaTime* 0.0000000006f;
 
             // 修正y轴的值
             if (trans.Value.y < -3.2f)
@@ -203,21 +203,42 @@ public class MovePaddleSystem : SystemBase
                 trans.Value.y = 3.2f;
 
 
+            // 修正Z轴方向的线速度
+            if (velocity.Linear.z != 0f)
+            {
+                velocity.Linear.z = 0f;
+                trans.Value.z = 0f;
+            }
+
+            // 修正X Y轴方向的角速度
+            if (velocity.Angular.x != 0f)
+            {
+                velocity.Angular.x = 0f;
+                rotation.Value.value.x = 0f;
+            }
+
+            if (velocity.Angular.y != 0f)
+            {
+                velocity.Angular.y = 0f;
+                rotation.Value.value.y = 0f;
+            }
+
+
 
             /* ComponentExtensions.ApplyImpulse((
                  )
                  PhysicsVelocity*/
 
-                // pv.ApplyLinearImpulse(1, new float3(input.horizontal, input.vertical, 0));
+            // pv.ApplyLinearImpulse(1, new float3(input.horizontal, input.vertical, 0));
 
-                /*  
-                float3 playerInput = new float3(input.horizontal, input.vertical, 0f); // 这个版本的也不行
-                trans.Value += playerInput * 2f;
-                */
-                //if(input.horizontal!=0f)
-                //    trans.Value.x += deltaTime * 0.001f * (input.horizontal);
-                //if(input.vertical!=0f)
-                //    trans.Value.y += deltaTime * 0.001f * (input.vertical);
+            /*  
+            float3 playerInput = new float3(input.horizontal, input.vertical, 0f); // 这个版本的也不行
+            trans.Value += playerInput * 2f;
+            */
+            //if(input.horizontal!=0f)
+            //    trans.Value.x += deltaTime * 0.001f * (input.horizontal);
+            //if(input.vertical!=0f)
+            //    trans.Value.y += deltaTime * 0.001f * (input.vertical);
         }).Run();//.Schedule(Dependency);
 
         //handle1.Complete();

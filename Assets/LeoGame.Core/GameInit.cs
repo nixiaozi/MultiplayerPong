@@ -39,6 +39,7 @@ public class GameInit : SystemBase
         #endregion
 
         #region UNITY_EDITOR
+        //url = "https://localhost:44394/Default/GetGameServerIp";
         url = "http://gameapi.betyfalsh.com:6162/Default/GetGameServerIp";
         // url = "http://192.168.0.101:6162/Default/GetGameServerIp";
         #endregion

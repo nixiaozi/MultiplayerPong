@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Physics;
 using Unity.Transforms;
+using UnityEngine;
 
 public struct BallSpawnerSystemController : IComponentData { }
 public struct ThePong : IComponentData { }
@@ -63,8 +64,15 @@ public class BallCheckSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities.WithoutBurst().WithStructuralChanges() // 为了快速实现直接修改结构
-            .ForEach((Entity ent, ref ThePong thePong, ref Translation translation) =>
+            .ForEach((Entity ent, ref ThePong thePong, ref Translation translation,ref PhysicsVelocity velocity,ref Rotation rotation) =>
         {
+            // 对于Z轴方向的线速度分量要进行控制
+            if (velocity.Linear.z != 0f)
+            {
+                velocity.Linear.z = 0f;
+                translation.Value.z = 0f;
+            }
+
             if (translation.Value.x > 9f || translation.Value.x < -9f)
             {
                 // 修改服务端的游戏状态为 游戏结束

@@ -286,12 +286,12 @@ MonoBehaviour:
     m_Friction:
       m_Override: 0
       m_Value:
-        Value: 0
+        Value: 0.2
         CombineMode: 1
     m_Restitution:
       m_Override: 0
       m_Value:
-        Value: 0
+        Value: 1.2
         CombineMode: 1
     m_BelongsTo:
       m_Override: 0
@@ -321,7 +321,7 @@ MonoBehaviour:
   m_MotionType: 0
   m_Mass: 50
   m_LinearDamping: 1
-  m_AngularDamping: 0.2
+  m_AngularDamping: 0.1
   m_InitialLinearVelocity:
     x: 0
     y: 0
