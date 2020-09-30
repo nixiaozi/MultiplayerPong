@@ -28,7 +28,7 @@ public class PlayerInitSystem : SystemBase
         //var the = GameObject.Instantiate(gameObject); // 直接可以通过这种方式初始化GameObject对象 可以的
         //the.tag = "ToPrepare";
 
-        EntityManager.CreateEntity(typeof(PlayerInitSystemController));
+        // EntityManager.CreateEntity(typeof(PlayerInitSystemController));
         RequireSingletonForUpdate<PlayerInitSystemController>();
         RequireSingletonForUpdate<NetworkIdComponent>();
 

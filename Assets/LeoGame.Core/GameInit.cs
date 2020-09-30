@@ -35,11 +35,12 @@ public class GameInit : SystemBase
         var url = "";
         // 定义获取服务端IP地址的链接。
         #region UNITY_CLIENT
-        url = "https://192.168.91.223/Default/GetGameServerIp";
+        url = "http://gameapi.betyfalsh.com:6162/Default/GetGameServerIp";
         #endregion
 
         #region UNITY_EDITOR
-        url = "https://localhost:44394/Default/GetGameServerIp";
+        url = "http://gameapi.betyfalsh.com:6162/Default/GetGameServerIp";
+        // url = "http://192.168.0.101:6162/Default/GetGameServerIp";
         #endregion
 
 
@@ -115,17 +116,17 @@ public class GameInit : SystemBase
                 //NetworkEndPoint.TryParse("IP address here", 7979, out NetworkEndPoint ep);
                 //NetworkEndPoint ep = NetworkEndPoint.LoopbackIpv4;
                 //ep.Port = 7979;
-
+                #region UNITY_CLIENT || UNITY_EDITOR
                 var ip = GetServerIp();
                 if (String.IsNullOrEmpty(ip))
                 {
-                    Debug.Log("获取服务端IP地址失败！");
+                    Debug.LogError("获取服务端IP地址失败！");
                 }
 
                 NetworkEndPoint ep = new NetworkEndPoint();
                 NetworkEndPoint.TryParse(ip, 7979, out ep);
                 network.Connect(ep); // 网络连接
-
+                #endregion
                 // network.Connect(ep);
             }
             else if (world.GetExistingSystem<ServerSimulationSystemGroup>() != null)

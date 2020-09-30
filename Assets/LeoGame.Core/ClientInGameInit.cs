@@ -117,6 +117,15 @@ public class GoInGameClientSystem : SystemBase
             });
             commandBuffer.RemoveComponent<PlayerIdNotInit>(playerStatus);
 
+            // 解决观战玩家也可以发送自己的游戏状态导致游戏状态混乱的问题
+            // 只有连接的前两个可以进行游戏
+            if(id.Value>0 && id.Value <= 2)
+            {
+                var playInitEntity = commandBuffer.CreateEntity();
+                commandBuffer.AddComponent<PlayerInitSystemController>(playInitEntity);
+            }
+
+
 
         }).Run();
 

@@ -506,6 +506,10 @@ public class ServerGameStatusSendSystem : SystemBase
                     leoGameStatusesArray[0] = new LeoGameStatus { theGameStatus = TheGameStatus.PartReady };
                     //commandBuffer.SetComponent<LeoGameStatus>(entity, new LeoGameStatus { theGameStatus = TheGameStatus.PartReady });
                 }
+                else if (countPlayer<2)  // 解决只有一个玩家的时候可能提示游戏已经准备完成的问题
+                {
+                    leoGameStatusesArray[0] = new LeoGameStatus { theGameStatus = TheGameStatus.PartReady };
+                }
                 else if(leoPlayerGameStatuses.Count(s => s.playerGameStatus == PlayerGameStatus.Ready) == countPlayer)
                 {
                     leoGameStatusesArray[0] = new LeoGameStatus { theGameStatus = TheGameStatus.AllReady };

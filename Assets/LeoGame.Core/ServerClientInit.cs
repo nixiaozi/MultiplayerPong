@@ -32,19 +32,19 @@ public class ServerClientInit : MonoBehaviour
         int numClientWorlds = ClientServerBootstrap.RequestedNumClients; // 客户端
         int totalNumClients = numClientWorlds;
 
-        int numThinClients = ClientServerBootstrap.RequestedNumThinClients; // 轻量级客户端
-        totalNumClients += numThinClients;
+        //int numThinClients = ClientServerBootstrap.RequestedNumThinClients; // 轻量级客户端
+        //totalNumClients += numThinClients;
 
         for (int i = 0; i < numClientWorlds; ++i)
         {
-            var clientWorld = ClientServerBootstrap.CreateClientWorld(World.DefaultGameObjectInjectionWorld, "MyClientWorld" + i);
+            var editclientWorld = ClientServerBootstrap.CreateClientWorld(World.DefaultGameObjectInjectionWorld, "MyClientWorld" + i);
             // clientWorld.EntityManager.CreateEntity(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus)); // 创建一个全局可访问的实体
         }
 
         for (int i = numClientWorlds; i < totalNumClients; ++i)
         {
-            var clientWorld = ClientServerBootstrap.CreateClientWorld(World.DefaultGameObjectInjectionWorld, "MyClientWorld" + i);
-            clientWorld.EntityManager.CreateEntity(typeof(ThinClientComponent));
+            var editnclientWorld = ClientServerBootstrap.CreateClientWorld(World.DefaultGameObjectInjectionWorld, "MyClientWorld" + i);
+            editnclientWorld.EntityManager.CreateEntity(typeof(ThinClientComponent));
             // clientWorld.EntityManager.CreateEntity(typeof(LeoGameStatus), typeof(LeoPlayerGameStatus)); // 创建一个全局可访问的实体
         }
 #endif
